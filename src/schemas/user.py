@@ -9,14 +9,13 @@ from src.contrib.schemas import BaseSchema
 class UserIn(BaseSchema):
     full_name: Annotated[str, Field(description="Nome completo", example="Eduardo Silva", max_length=60)]
     birth_date: Annotated[date, Field(description="Data de nascimento", example="31/12/2000")]
-    cpf: Annotated[str, Field(description="CPF (apenas números)", example="12345678900", max_length=11)]
+    cpf: Annotated[str, Field(description="CPF (apenas números)", example="12345678900", min_length=11, max_length=11)]
     email: Annotated[str, Field(description="E-mail", example="email@yahoo.com", max_length=50)]
     password: Annotated[str, Field(description="Senha do usuário", example="12345678", min_length=6, max_length=32)]
 
     @field_validator("birth_date", mode="before")
     @classmethod
     def parse_birth_date(cls, value):
-
         if isinstance(value, date):
             return value
 
@@ -30,5 +29,10 @@ class UserIn(BaseSchema):
                 return datetime.strptime(value, "%d-%m-%Y").date()
             except ValueError:
                 pass
-
         raise ValueError("A data deve estar no formato DD/MM/AAAA ou DD-MM-AAAA")
+
+    @field_validator("cpf")
+    def validate_cpf(cls, cpf):
+        if not cpf.isdigit():
+            raise ValueError("CPF deve conter apenas números")
+        return cpf

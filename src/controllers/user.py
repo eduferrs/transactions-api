@@ -14,5 +14,4 @@ async def create_user(
     user: UserIn,
     db: DatabaseDependency,
 ):
-    created_user = await user_service.register_user(user, db)
-    return created_user
+    return await user_service.register_user(user, db)
