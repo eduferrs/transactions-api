@@ -7,7 +7,7 @@ API assíncrona para simulação de operações bancárias, desenvolvida como pr
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?style=for-the-badge&logo=postgresql)
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-red?style=for-the-badge)
 
-## 🚀 Funcionalidades
+## Funcionalidades
 
 - **Autenticação Segura:** Registro e Login de usuários via JWT (JSON Web Tokens).
 - **Gestão de Contas:** Criação automática de conta corrente ao registrar usuário.
@@ -17,7 +17,7 @@ API assíncrona para simulação de operações bancárias, desenvolvida como pr
   - **Transferência:** Envio entre contas.
 - **Extrato:** Consulta de histórico de movimentações.
 
-## 🛠️ Stack Tecnológico
+## Stack Tecnológico
 
 - **Linguagem:** Python 3.12+
 - **Framework Web:** FastAPI (Async)

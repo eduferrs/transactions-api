@@ -1,37 +1,30 @@
-from datetime import datetime, timedelta, timezone
-from typing import Annotated
-
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jwt.exceptions import InvalidTokenError
-from pwdlib import PasswordHash
-from pydantic import BaseModel
+from fastapi.security import OAuth2PasswordRequestForm
 
 from src.contrib.dependencies import DatabaseDependency
-from src.schemas.auth import LoginIn
-from src.schemas.user import UserIn
-from src.security import sign_jwt
-from src.services.auth import AuthService
-from src.views.user import UserOut
-
-# from views.auth import LoginOut
+from src.security import sign_jwt, verify_password
+from src.services.user import UserService
 
 router = APIRouter(tags=["auth"])
-auth_service = AuthService()
+user_service = UserService()
 
 
-@router.post("/new_user", summary="Criar nova conta", status_code=status.HTTP_201_CREATED, response_model=UserOut)
-async def create_user(
-    user: UserIn,
-    db: DatabaseDependency,
-):
-    created_user = await auth_service.register_user(user, db)
-    return created_user
+@router.post("/login", include_in_schema=False)
+async def login(db: DatabaseDependency, form_data: OAuth2PasswordRequestForm = Depends()):
 
+    # form_data.username → email ou cpf
+    user = await user_service.get_user_by_email_or_cpf(db, form_data.username)
 
-# @router.post("/login", response_model=LoginOut)
-# async def login(data: LoginIn):
-#    return sign_jwt(user_id=data.user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Usuário ou senha inválidos",
+        )
 
+    if not verify_password(form_data.password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Usuário ou senha inválidos",
+        )
 
-####################################################################################################################
+    return sign_jwt(user.id)

@@ -9,12 +9,11 @@ from sqlalchemy.orm import selectinload
 
 from src.models.account import AccountModel
 from src.models.user import UserModel
-from src.schemas.auth import LoginIn
 from src.schemas.user import UserIn
-from src.security import get_password_hash, sign_jwt, verify_password
+from src.security import get_password_hash
 
 
-class AuthService:
+class UserService:
 
     async def _generate_account_number(self, db_session: AsyncSession) -> str:
         query = select(func.nextval("account_number_seq"))
@@ -64,12 +63,8 @@ class AuthService:
             print(f"Erro: {e}")
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Erro interno no servidor")
 
-    async def authenticate_user(self, login_data: LoginIn, db_session: AsyncSession):
-        query = select(UserModel).where(or_(UserModel.cpf == login_data.cpf, UserModel.email == login_data.email))
+    async def get_user_by_email_or_cpf(self, db_session: AsyncSession, username: str) -> None:
+        query = select(UserModel).where(or_(UserModel.cpf == username, UserModel.email == username))
         result = await db_session.execute(query)
-        user = result.scalars().first()
 
-        if not user or not verify_password(login_data.password, user.password):
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciais inválidas")
-
-        return sign_jwt(user_id=user.pk_id)
+        return result.scalars().first()
