@@ -7,11 +7,24 @@ from src.contrib.schemas import BaseSchema
 
 
 class UserIn(BaseSchema):
-    full_name: Annotated[str, Field(description="Nome completo", example="Eduardo Silva", max_length=60)]
-    birth_date: Annotated[date, Field(description="Data de nascimento", example="31/12/2000")]
-    cpf: Annotated[str, Field(description="CPF (apenas números)", example="12345678900", min_length=11, max_length=11)]
-    email: Annotated[str, Field(description="E-mail", example="email@yahoo.com", max_length=50)]
-    password: Annotated[str, Field(description="Senha do usuário", example="12345678", min_length=6, max_length=32)]
+    full_name: Annotated[
+        str, Field(description="Nome completo", json_schema_extra={"example": "Eduardo Silva"}, max_length=60)
+    ]
+    birth_date: Annotated[date, Field(description="Data de nascimento", json_schema_extra={"example": "31/12/2000"})]
+    cpf: Annotated[
+        str,
+        Field(
+            description="CPF (apenas números)",
+            json_schema_extra={"example": "12345678900"},
+            min_length=11,
+            max_length=11,
+        ),
+    ]
+    email: Annotated[str, Field(description="E-mail", json_schema_extra={"example": "email@yahoo.com"}, max_length=50)]
+    password: Annotated[
+        str,
+        Field(description="Senha do usuário", json_schema_extra={"example": "12345678"}, min_length=6, max_length=32),
+    ]
 
     @field_validator("birth_date", mode="before")
     @classmethod

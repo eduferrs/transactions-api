@@ -2,13 +2,11 @@ from datetime import datetime
 from typing import Annotated
 from zoneinfo import ZoneInfo
 
-from pydantic import UUID4, BaseModel, Field, field_serializer
+from pydantic import UUID4, BaseModel, ConfigDict, Field, field_serializer
 
 
 class BaseSchema(BaseModel):
-    class Config:
-        extra = "forbid"
-        from_attributes = True
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
 
 
 class OutMixin(BaseModel):
