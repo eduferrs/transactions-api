@@ -8,7 +8,7 @@ service = TransactionService()
 router = APIRouter(tags=["Transactions"])
 
 
-@router.post("/", dependencies=[Depends(get_current_user)])
+@router.post("/test", dependencies=[Depends(get_current_user)])
 def test():
     return "test"
 
