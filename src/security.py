@@ -14,7 +14,7 @@ SECRET = "my_secret"
 ALGORITHM = "HS256"
 
 password_hash = PasswordHash.recommended()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", description="OBS.: username = cpf ou email")
 
 
 def get_password_hash(password: str) -> str:
