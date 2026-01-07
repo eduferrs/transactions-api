@@ -9,7 +9,7 @@ API assíncrona para simulação de operações bancárias, desenvolvida como pr
 
 ## Funcionalidades
 
-- **Autenticação Segura:** Registro e Login de usuários via JWT (JSON Web Tokens).
+- **Autenticação Segura:** Registro e Login de usuários com OAuth2/JWT
 - **Gestão de Contas:** Criação automática de conta corrente ao registrar usuário.
 - **Operações Financeiras:**
   - **Depósito:** Incremento de saldo.
