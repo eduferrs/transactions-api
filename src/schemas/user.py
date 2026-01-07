@@ -1,14 +1,15 @@
 from datetime import date, datetime
 from typing import Annotated
 
-from pydantic import Field, field_validator
+from pydantic import EmailStr, Field, field_validator
 
 from src.contrib.schemas import BaseSchema
 
 
 class UserIn(BaseSchema):
     full_name: Annotated[
-        str, Field(description="Nome completo", json_schema_extra={"example": "Eduardo Silva"}, max_length=60)
+        str,
+        Field(description="Nome completo", json_schema_extra={"example": "Eduardo Silva"}, min_length=2, max_length=60),
     ]
     birth_date: Annotated[date, Field(description="Data de nascimento", json_schema_extra={"example": "31/12/2000"})]
     cpf: Annotated[
@@ -20,7 +21,9 @@ class UserIn(BaseSchema):
             max_length=11,
         ),
     ]
-    email: Annotated[str, Field(description="E-mail", json_schema_extra={"example": "email@yahoo.com"}, max_length=50)]
+    email: Annotated[
+        EmailStr, Field(description="E-mail", json_schema_extra={"example": "email@yahoo.com"}, max_length=50)
+    ]
     password: Annotated[
         str,
         Field(description="Senha do usuário", json_schema_extra={"example": "12345678"}, min_length=6, max_length=32),
@@ -49,3 +52,8 @@ class UserIn(BaseSchema):
         if not cpf.isdigit():
             raise ValueError("CPF deve conter apenas números")
         return cpf
+
+    @field_validator("email", mode="after")
+    @classmethod
+    def lower_case_email(cls, email: str):
+        return email.lower()

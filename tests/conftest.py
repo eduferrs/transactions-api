@@ -12,13 +12,31 @@ from src.services.user import UserService
 TEST_DB_URL = "sqlite+aiosqlite:///./test.db"
 settings.DB_URL = TEST_DB_URL
 
-engine_test = create_async_engine(TEST_DB_URL, echo=False)
 
-AsyncSessionTest = sessionmaker(
-    engine_test,
-    class_=AsyncSession,
-    expire_on_commit=False,
-)
+@pytest_asyncio.fixture
+async def db_session():
+    import src.models.account
+    import src.models.transaction
+    import src.models.user
+
+    engine_test = create_async_engine(TEST_DB_URL, echo=False)
+
+    AsyncSessionTest = sessionmaker(
+        engine_test,
+        class_=AsyncSession,
+        expire_on_commit=False,
+    )
+
+    async with engine_test.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    async with AsyncSessionTest() as session:
+        yield session
+
+    async with engine_test.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+
+    await engine_test.dispose()
 
 
 @pytest_asyncio.fixture
@@ -43,22 +61,6 @@ async def client(db_session):
         yield client
 
     app.dependency_overrides.clear()
-
-
-@pytest_asyncio.fixture
-async def db_session():
-    import src.models.account
-    import src.models.transaction
-    import src.models.user
-
-    async with engine_test.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-    async with AsyncSessionTest() as session:
-        yield session
-
-    async with engine_test.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
 
 
 @pytest_asyncio.fixture
