@@ -9,6 +9,13 @@ from sqlalchemy.sql import func
 from src.contrib.models import BaseModel
 
 
+def get_enum_values(enum):
+    values = []
+    for item in enum:
+        values.append(item.value)
+    return values
+
+
 class TransactionType(str, enum.Enum):
     DEPOSIT = "deposito"
     WITHDRAWAL = "saque"
@@ -21,7 +28,9 @@ class TransactionModel(BaseModel):
 
     pk_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     amount: Mapped[Decimal] = mapped_column(DECIMAL(12, 2), nullable=False)
-    type: Mapped[TransactionType] = mapped_column(Enum(TransactionType), nullable=False)
+    type: Mapped[TransactionType] = mapped_column(
+        Enum(TransactionType, values_callable=get_enum_values), nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     account_id: Mapped[int] = mapped_column(ForeignKey("accounts.pk_id"))
     account: Mapped["AccountModel"] = relationship(back_populates="transactions")

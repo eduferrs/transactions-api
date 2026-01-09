@@ -7,6 +7,11 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
 from pydantic import BaseModel
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+
+from src.contrib.dependencies import DatabaseDependency
+from src.models.user import UserModel
 
 # to get a string like this: "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7" (secret)
 # run: openssl rand -hex 32
@@ -14,7 +19,7 @@ SECRET = "my_secret"
 ALGORITHM = "HS256"
 
 password_hash = PasswordHash.recommended()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", description="OBS.: username = cpf ou email")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", description="OBS.: username = cpf ou email\n")
 
 
 def get_password_hash(password: str) -> str:
@@ -40,11 +45,11 @@ class JWTToken(BaseModel):
     token_type: str = "bearer"
 
 
-def sign_jwt(user_id: int) -> JWTToken:
+def sign_jwt(user_uuid: int) -> JWTToken:
     now = time.time()
     payload = {
         "iss": "rr-bankapi.com.br",
-        "sub": str(user_id),
+        "sub": str(user_uuid),
         "aud": "rr-bankapi",
         "exp": now + (60 * 30),  # 30 minutos
         "iat": now,
@@ -67,7 +72,7 @@ async def decode_jwt(token: str) -> dict | None:
         return None
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> dict:
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db_session: DatabaseDependency) -> UserModel:
     payload = await decode_jwt(token)
 
     if not payload:
@@ -76,4 +81,16 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> dic
             detail="Token inválido ou expirado",
         )
 
-    return {"user_id": payload["sub"]}
+    user_uuid = payload.get("sub")
+
+    query = select(UserModel).options(selectinload(UserModel.checking_account)).where(UserModel.id == user_uuid)
+    result = await db_session.execute(query)
+    current_user = result.scalars().first()
+
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Usuário não localizado",
+        )
+
+    return current_user

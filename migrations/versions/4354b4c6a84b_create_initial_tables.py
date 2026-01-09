@@ -1,8 +1,8 @@
-"""initial_structure
+"""create_initial_tables
 
-Revision ID: 8a3a326cd7d4
+Revision ID: 4354b4c6a84b
 Revises:
-Create Date: 2026-01-03 19:49:38.846294
+Create Date: 2026-01-08 22:24:03.924832
 
 """
 
@@ -14,7 +14,7 @@ from sqlalchemy.schema import CreateSequence, DropSequence
 from sqlalchemy.schema import Sequence as Seq
 
 # revision identifiers, used by Alembic.
-revision: str = "8a3a326cd7d4"
+revision: str = "4354b4c6a84b"
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -68,11 +68,7 @@ def upgrade() -> None:
         "transactions",
         sa.Column("pk_id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("amount", sa.DECIMAL(precision=12, scale=2), nullable=False),
-        sa.Column(
-            "type",
-            sa.Enum("DEPOSIT", "WITHDRAWAL", "TRANSFER_IN", "TRANSFER_OUT", name="transactiontype"),
-            nullable=False,
-        ),
+        sa.Column("type", sa.Enum("deposito", "saque", "recebimento", "envio", name="transactiontype"), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("account_id", sa.Integer(), nullable=False),
         sa.Column("counterparty_name", sa.String(length=60), nullable=True),
