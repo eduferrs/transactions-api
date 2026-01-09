@@ -8,12 +8,12 @@ from src.services.transaction import TransactionService
 from src.views.transaction import TransactionOut
 
 service = TransactionService()
-router = APIRouter(tags=["Transactions"])
+router = APIRouter(prefix="/transactions", tags=["Transaction"])
 
 
 @router.post(
     "/deposit",
-    summary="Depositar na própria conta",
+    summary="Deposit into own account",
     status_code=status.HTTP_201_CREATED,
     response_model=TransactionOut,
 )
