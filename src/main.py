@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from src.controllers import auth, transaction, user
-from src.execptions import CreateUserError, InternalServerError
+from src.execptions import *
 from src.models.account import AccountModel
 from src.models.transaction import TransactionModel
 from src.models.user import UserModel
@@ -15,6 +15,16 @@ app.include_router(user.router)
 
 @app.exception_handler(CreateUserError)
 async def create_user_exception_handler(request: Request, exc: CreateUserError):
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
+
+
+@app.exception_handler(AccountNotFoundError)
+async def account_not_found_exception_handler(request: Request, exc: AccountNotFoundError):
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
+
+
+@app.exception_handler(BusinessError)
+async def business_exception_handler(request: Request, exc: BusinessError):
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
 
 

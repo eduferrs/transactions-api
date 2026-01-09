@@ -4,6 +4,7 @@ from uuid import uuid4
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.execptions import AccountNotFoundError
 from src.models.account import AccountModel
 from src.models.transaction import TransactionModel, TransactionType
 from src.schemas.transaction import TransactionIn
@@ -20,7 +21,7 @@ class TransactionService:
         account = result.scalars().first()
 
         if not account:
-            raise Exception("Conta bancária não localizada")
+            raise AccountNotFoundError
 
         account.balance += transaction_in.amount
         db_session.add(account)
