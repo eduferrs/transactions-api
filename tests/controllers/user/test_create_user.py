@@ -17,7 +17,7 @@ async def test_create_user_succsess(client: AsyncClient, mocker):
     }
 
     # When
-    response = await client.post("/new_user", json=data)
+    response = await client.post("/users/new_user", json=data)
     user = response.json()
 
     # Then
@@ -39,11 +39,11 @@ async def test_create_user_conflict_fail(client: AsyncClient, created_user, mock
     }
 
     # When
-    response = await client.post("/new_user", json=data)
+    response = await client.post("/users/new_user", json=data)
 
     # Then
     assert response.status_code == status.HTTP_409_CONFLICT
-    assert response.json()["detail"] == "CPF ou E-mail já cadastrado"
+    assert response.json()["detail"] == "CPF or e-mail already exists"
 
 
 async def test_create_user_invalid_payload_fail(client: AsyncClient, mocker):
@@ -57,7 +57,7 @@ async def test_create_user_invalid_payload_fail(client: AsyncClient, mocker):
     }
 
     # When
-    response = await client.post("/new_user", json=data)
+    response = await client.post("/users/new_user", json=data)
     content = response.json()
 
     errors = {error["loc"][-1]: error["msg"] for error in content["detail"]}

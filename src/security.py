@@ -1,6 +1,6 @@
 import time
 from typing import Annotated
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import jwt
 from fastapi import Depends, HTTPException, status
@@ -19,7 +19,7 @@ SECRET = "my_secret"
 ALGORITHM = "HS256"
 
 password_hash = PasswordHash.recommended()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", description="OBS.: username = cpf ou email\n")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", description="username: cpf or e-mail")
 
 
 def get_password_hash(password: str) -> str:
@@ -81,7 +81,8 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db_ses
             detail="Token inválido ou expirado",
         )
 
-    user_uuid = payload.get("sub")
+    user_uuid_str = payload.get("sub")
+    user_uuid = UUID(user_uuid_str)
 
     query = select(UserModel).options(selectinload(UserModel.checking_account)).where(UserModel.id == user_uuid)
     result = await db_session.execute(query)
