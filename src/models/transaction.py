@@ -2,7 +2,7 @@ import enum
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import DECIMAL, DateTime, Enum, ForeignKey, Integer, String
+from sqlalchemy import DECIMAL, DateTime, Enum, ForeignKey, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -38,4 +38,8 @@ class TransactionModel(BaseModel):
     counterparty_name: Mapped[str | None] = mapped_column(String(60), nullable=True)
     counterparty_branch: Mapped[str | None] = mapped_column(String(4), nullable=True)
     counterparty_account_number: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    counterparty_account_number: Mapped[str | None] = mapped_column(String(20), nullable=True)
+
+    # __table_args__ = (
+    # Índice para consultas envolventdo conta e data específicas
+    #    Index('ix_transactions_account_date', 'account_id', 'created_at'),
+    # )
