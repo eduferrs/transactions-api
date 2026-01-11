@@ -17,10 +17,13 @@ class AccountModel(Base):
 
     balance: Mapped[Decimal] = mapped_column(DECIMAL(12, 2), default=0, nullable=False)
     daily_withdrawal_limit: Mapped[Decimal] = mapped_column(
-        DECIMAL(12, 2), default=1000.00, nullable=False, comment="Maximum cumulative withdrawal amount allowed per day."
+        DECIMAL(12, 2),
+        default=Decimal(1000.00),
+        nullable=False,
+        comment="Maximum cumulative withdrawal amount allowed per day.",
     )
     transfer_limit: Mapped[Decimal] = mapped_column(
-        DECIMAL(12, 2), default=2500.00, nullable=False, comment="Maximum amount allowed per transfer."
+        DECIMAL(12, 2), default=Decimal(2500.00), nullable=False, comment="Maximum amount allowed per transfer."
     )
 
     transactions: Mapped[list["TransactionModel"]] = relationship(back_populates="account", lazy="selectin")
