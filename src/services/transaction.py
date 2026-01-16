@@ -1,4 +1,4 @@
-from datetime import datetime, time, timezone
+from datetime import datetime, timezone
 from decimal import Decimal
 from uuid import uuid4
 
@@ -105,9 +105,6 @@ class TransactionService:
         self, transfer_in: TransferIn, current_user: int, db_session: AsyncSession
     ) -> TransactionModel:
 
-        # Fazendo join porque precisa do nome desse usuário para registrar no campo da transação
-        # Se buscasse pelo UserModel, não haveria bloqueio na linha da conta
-        # O bloqueio é sempre na linha do model dentro do select()
         query = select(AccountModel).join(UserModel).where(UserModel.pk_id == current_user.pk_id).with_for_update()
         result = await db_session.execute(query)
         account = result.scalars().first()
@@ -133,12 +130,17 @@ class TransactionService:
         ):
             raise BusinessError("Invalid branch or account number.")
 
+        if (
+            counterparty.checking_account.account_number == account.account_number
+            and counterparty.checking_account.branch == account.branch
+        ):
+            raise BusinessError("Cannot transfer to own account")
+
         account.balance -= transfer_in.amount
         counterparty.checking_account.balance += transfer_in.amount
         db_session.add(account)
         db_session.add(counterparty)
 
-        # Explicação complexa sobre ids no transactionModel
         operation_id = uuid4()
 
         transfer_out = TransactionModel(
@@ -154,8 +156,6 @@ class TransactionService:
         )
         db_session.add(transfer_out)
 
-        ############################## Não usando model_dumps aqui. Viria com ag e c/c do mesmo usuário (que recebeu)
-        # Para não confundir, deixei a criação de cima também.
         transfer = TransactionModel(
             id=uuid4(),
             operation_id=operation_id,

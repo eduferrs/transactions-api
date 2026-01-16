@@ -36,7 +36,7 @@ class TransactionModel(BaseModel):
     account_id: Mapped[int] = mapped_column(ForeignKey("accounts.pk_id"))
     account: Mapped["AccountModel"] = relationship(back_populates="transactions")
 
-    operation_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), unique=True, nullable=True)
+    operation_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), nullable=True)
     counterparty_name: Mapped[str | None] = mapped_column(String(60), nullable=True)
     counterparty_branch: Mapped[str | None] = mapped_column(String(4), nullable=True)
     counterparty_account_number: Mapped[str | None] = mapped_column(String(20), nullable=True)
@@ -59,5 +59,6 @@ class TransactionModel(BaseModel):
     )
 
 
+#
 #
 #
