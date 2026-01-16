@@ -2,7 +2,8 @@ import enum
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import DECIMAL, DateTime, Enum, ForeignKey, Index, Integer, String
+from sqlalchemy import DECIMAL, UUID, CheckConstraint, DateTime, Enum, ForeignKey, Index, Integer, String
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -35,11 +36,28 @@ class TransactionModel(BaseModel):
     account_id: Mapped[int] = mapped_column(ForeignKey("accounts.pk_id"))
     account: Mapped["AccountModel"] = relationship(back_populates="transactions")
 
+    operation_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), unique=True, nullable=True)
     counterparty_name: Mapped[str | None] = mapped_column(String(60), nullable=True)
     counterparty_branch: Mapped[str | None] = mapped_column(String(4), nullable=True)
     counterparty_account_number: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
-    # __table_args__ = (
-    # Índice para consultas envolventdo conta e data específicas
-    #    Index('ix_transactions_account_date', 'account_id', 'created_at'),
-    # )
+    __table_args__ = (
+        CheckConstraint(
+            """
+            type NOT IN ('recebimento', 'envio')
+            OR
+            operation_id IS NOT NULL
+            """,
+            name="chk_operation_id_transfer",
+        ),
+        Index("ix_transactions_account_date", "account_id", "created_at"),
+        Index(
+            "ix_transactions_operation_id",
+            "operation_id",
+            postgresql_where=(operation_id.is_not(None)),
+        ),
+    )
+
+
+#
+#

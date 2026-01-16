@@ -64,3 +64,14 @@ class UserService:
         result = await db_session.execute(query)
 
         return result.scalars().first()
+
+    async def get_user_by_account_number(self, db_session: AsyncSession, account_number: str) -> UserModel | None:
+
+        query = (
+            select(UserModel)
+            .join(UserModel.checking_account)
+            .where(AccountModel.account_number == account_number)
+            .with_for_update(of=AccountModel)
+        )
+        result = await db_session.execute(query)
+        return result.scalars().first()
