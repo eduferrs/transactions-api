@@ -26,6 +26,11 @@ async def account_not_found_exception_handler(request: Request, exc: AccountNotF
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
 
 
+@app.exception_handler(UserUpdateError)
+async def user_update_exception_handler(request: Request, exc: UserUpdateError):
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
+
+
 @app.exception_handler(BusinessError)
 async def business_exception_handler(request: Request, exc: BusinessError):
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})

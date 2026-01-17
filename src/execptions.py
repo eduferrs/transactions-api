@@ -13,6 +13,12 @@ class AccountNotFoundError(Exception):
         self.status_code = status_code
 
 
+class UserUpdateError(Exception):
+    def __init__(self, message: str = "E-mail already used", status_code: int = HTTPStatus.BAD_REQUEST) -> None:
+        self.message = message
+        self.status_code = status_code
+
+
 class BusinessError(Exception):
     def __init__(self, message: str = "Action not allowed", status_code: int = HTTPStatus.BAD_REQUEST) -> None:
         self.message = message

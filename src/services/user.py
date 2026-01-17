@@ -6,10 +6,10 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.execptions import CreateUserError, InternalServerError
+from src.execptions import *
 from src.models.account import AccountModel
 from src.models.user import UserModel
-from src.schemas.user import UserIn
+from src.schemas.user import UserIn, UserUpdate
 from src.security import get_password_hash
 
 
@@ -58,6 +58,26 @@ class UserService:
         except Exception as e:
             await db_session.rollback()
             raise InternalServerError
+
+    async def update(self, user_up: UserUpdate, current_user: UserModel, db_session: AsyncSession) -> UserModel:
+
+        user_update = user_up.model_dump(exclude_unset=True)
+
+        if "email" in user_update:
+            if user_update["email"] != current_user.email:
+                query = select(UserModel).where(UserModel.email == user_update["email"])
+                result = await db_session.execute(query)
+                found = result.scalars().first()
+
+                if found:
+                    raise UserUpdateError
+
+        for key, value in user_update.items():
+            setattr(current_user, key, value)
+
+        await db_session.commit()
+        await db_session.refresh(current_user)
+        return current_user
 
     async def get_user_by_email_or_cpf(self, db_session: AsyncSession, username: str) -> UserModel | None:
         query = select(UserModel).where(or_(UserModel.cpf == username, UserModel.email == username))

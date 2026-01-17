@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Annotated
+from typing import Annotated, Optional
 
 from pydantic import EmailStr, Field, field_validator
 
@@ -57,3 +57,18 @@ class UserIn(BaseSchema):
     @classmethod
     def lower_case_email(cls, email: str):
         return email.lower()
+
+
+class UserUpdate(BaseSchema):
+    full_name: Annotated[
+        Optional[str],
+        Field(
+            None, description="Seu nome", json_schema_extra={"example": "Eduardo F. Silva"}, min_length=2, max_length=60
+        ),
+    ]
+    email: Annotated[
+        Optional[EmailStr],
+        Field(
+            None, description="Seu novo e-mail", json_schema_extra={"example": "novo-email@yahoo.com"}, max_length=50
+        ),
+    ]
