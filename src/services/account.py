@@ -1,4 +1,4 @@
-from fastapi_pagination.ext.sqlalchemy import paginate
+from fastapi_pagination.ext.sqlalchemy import apaginate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,4 +14,4 @@ class AccountService:
             .order_by(TransactionModel.created_at.desc())
         )
 
-        return await paginate(db_session, query)
+        return await apaginate(db_session, query)
