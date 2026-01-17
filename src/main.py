@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi_pagination import add_pagination
 
-from src.controllers import auth, transaction, user
+from src.controllers import account, auth, transaction, user
 from src.execptions import *
 from src.models.account import AccountModel
 from src.models.transaction import TransactionModel
@@ -11,6 +12,8 @@ app = FastAPI()
 app.include_router(auth.router)
 app.include_router(transaction.router)
 app.include_router(user.router)
+app.include_router(account.router)
+add_pagination(app)
 
 
 @app.exception_handler(CreateUserError)

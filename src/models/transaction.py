@@ -57,8 +57,3 @@ class TransactionModel(BaseModel):
             postgresql_where=(operation_id.is_not(None)),
         ),
     )
-
-
-#
-#
-#
