@@ -1,3 +1,4 @@
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -6,6 +7,14 @@ class Settings(BaseSettings):
 
     # .env
     DB_URL: str
+
+    @field_validator("DB_URL")
+    @classmethod
+    def fix_db_url(cls, url: str | None) -> str:
+        if not url:
+            return ""
+
+        return url.replace("postgres://", "postgresql+asyncpg://")
 
 
 settings = Settings()

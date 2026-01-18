@@ -7,6 +7,7 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+from src.config import settings
 from src.contrib.models import Base
 from src.models.account import AccountModel
 from src.models.transaction import TransactionModel
@@ -68,7 +69,7 @@ def do_run_migrations(connection: Connection) -> None:
 
 async def run_async_migrations() -> None:
     configuration = config.get_section(config.config_ini_section)
-    configuration["sqlalchemy.url"] = "postgresql+asyncpg://bank:bank@127.0.0.1:5433/bank"
+    configuration["sqlalchemy.url"] = settings.DB_URL
 
     connectable = async_engine_from_config(
         configuration,
