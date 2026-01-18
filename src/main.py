@@ -8,7 +8,28 @@ from src.models.account import AccountModel
 from src.models.transaction import TransactionModel
 from src.models.user import UserModel
 
-app = FastAPI()
+tags_metadata = [
+    {
+        "name": "Transaction",
+        "description": "Handles financial movements",
+        "externalDocs": {
+            "description": "return to repository",
+            "url": "https://github.com/eduferrs/transactions-api",
+        },
+    },
+    {
+        "name": "User",
+        "description": "Customer profile",
+    },
+]
+
+app = FastAPI(
+    title="Bank API",
+    version="1.0.0",
+    summary="A asynchronous REST API designed for financial operations and account management.",
+    openapi_tags=tags_metadata,
+)
+
 app.include_router(auth.router)
 app.include_router(transaction.router)
 app.include_router(user.router)
