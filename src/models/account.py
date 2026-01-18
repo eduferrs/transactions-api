@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from sqlalchemy import DECIMAL, ForeignKey, Integer, Sequence, String
+from sqlalchemy import DECIMAL, Boolean, ForeignKey, Integer, Sequence, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.contrib.models import Base
@@ -11,6 +11,7 @@ account_seq = Sequence("account_number_seq", start=10001, increment=1, metadata=
 class AccountModel(Base):
     __tablename__ = "accounts"
 
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     pk_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     branch: Mapped[str] = mapped_column(String(4), default="0001", nullable=False)
     account_number: Mapped[str] = mapped_column(String(20), nullable=False, unique=True)

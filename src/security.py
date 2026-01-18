@@ -84,7 +84,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db_ses
     user_uuid_str = payload.get("sub")
     user_uuid = UUID(user_uuid_str)
 
-    query = select(UserModel).options(selectinload(UserModel.checking_account)).where(UserModel.id == user_uuid)
+    query = (
+        select(UserModel)
+        .options(selectinload(UserModel.checking_account))
+        .where(UserModel.id == user_uuid, UserModel.is_active == True)
+    )
     result = await db_session.execute(query)
     current_user = result.scalars().first()
 

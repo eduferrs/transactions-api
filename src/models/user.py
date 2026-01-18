@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import Date, DateTime, Integer, String
+from sqlalchemy import Boolean, Date, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -10,6 +10,7 @@ from src.contrib.models import BaseModel
 class UserModel(BaseModel):
     __tablename__ = "users"
 
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     pk_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
     full_name: Mapped[str] = mapped_column(String(60), nullable=False)

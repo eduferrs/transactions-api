@@ -24,3 +24,8 @@ async def update_user(
     db_session: DatabaseDependency, user_up: UserUpdate, current_user: UserModel = Depends(get_current_user)
 ):
     return await user_service.update(user_up, current_user, db_session)
+
+
+@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(db_session: DatabaseDependency, current_user: UserModel = Depends(get_current_user)):
+    return await user_service.delete(current_user, db_session)

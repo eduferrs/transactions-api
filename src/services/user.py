@@ -79,8 +79,25 @@ class UserService:
         await db_session.refresh(current_user)
         return current_user
 
+    async def delete(self, user: UserModel, db_session: AsyncSession) -> None:
+        # Lock para evitar novas transações durante a deleção
+        query = select(AccountModel).where(AccountModel.user_id == user.pk_id).with_for_update()
+        result = await db_session.execute(query)
+        account = result.scalars().first()
+
+        if account.balance != 0:
+            raise BusinessError("Your balance must be 0 before closing the account")
+
+        user.is_active = False
+        account.is_active = False
+
+        db_session.add(user)
+        await db_session.commit()
+
     async def get_user_by_email_or_cpf(self, db_session: AsyncSession, username: str) -> UserModel | None:
-        query = select(UserModel).where(or_(UserModel.cpf == username, UserModel.email == username))
+        query = select(UserModel).where(
+            or_(UserModel.cpf == username, UserModel.email == username), UserModel.is_active == True
+        )
         result = await db_session.execute(query)
 
         return result.scalars().first()
@@ -90,7 +107,11 @@ class UserService:
         query = (
             select(UserModel)
             .join(UserModel.checking_account)
-            .where(AccountModel.account_number == account_number)
+            .where(
+                AccountModel.account_number == account_number,
+                AccountModel.is_active == True,
+                UserModel.is_active == True,
+            )
             .with_for_update(of=AccountModel)
         )
         result = await db_session.execute(query)
