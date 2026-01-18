@@ -14,7 +14,7 @@ class Settings(BaseSettings):
         if not url:
             return ""
 
-        return url.replace("postgres://", "postgresql+asyncpg://")
+        return url.replace("postgresql://", "postgresql+asyncpg://")
 
 
 settings = Settings()
