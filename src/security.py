@@ -58,17 +58,16 @@ def sign_jwt(user_uuid: int) -> JWTToken:
     }
     token = jwt.encode(payload, SECRET, algorithm=ALGORITHM)
 
-    return {"access_token": token, "token_type": "bearer"}
+    return JWTToken(access_token=token)
 
 
-async def decode_jwt(token: str) -> dict | None:
+async def decode_jwt(token: str) -> AccessToken | None:
     try:
         decoded_token = jwt.decode(
             token, SECRET, audience="rr-bankapi", issuer="rr-bankapi.com.br", algorithms=[ALGORITHM]
         )
-        return decoded_token if decoded_token["exp"] >= time.time() else None
-    except Exception as e:
-        print(f"Erro ao decodificar: {e}")
+        return AccessToken(**decoded_token) if decoded_token["exp"] >= time.time() else None
+    except Exception:
         return None
 
 
@@ -81,7 +80,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db_ses
             detail="Token inválido ou expirado",
         )
 
-    user_uuid_str = payload.get("sub")
+    user_uuid_str = payload.sub
     user_uuid = UUID(user_uuid_str)
 
     query = (
